@@ -1,0 +1,18 @@
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/privacy"
+  to = "/public/privacy-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/delete"
+  to = "/public/data-deletion.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/public/terms-of-service.html"
+  status = 200
