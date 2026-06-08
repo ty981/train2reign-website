@@ -95,6 +95,16 @@ nav.scrolled{
   transition:background 0.2s, transform 0.15s;
 }
 .nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
+.nav-login{
+  font-family:var(--font-condensed);font-size:14px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  background:transparent;color:var(--white);
+  border:1px solid var(--white);
+  padding:10px 24px;border-radius:6px;
+  text-decoration:none;
+  transition:background 0.2s,color 0.2s,transform 0.15s;
+}
+.nav-login:hover{background:var(--white);color:#1F2937;transform:translateY(-1px)}
 
 /* ── HERO ───────────────────────────────────────────────── */
 .hero{
@@ -813,6 +823,7 @@ footer{
   .hero-capture button,.final-cta-capture button{width:100%;padding:16px}
   footer{flex-direction:column;text-align:center}
   .footer-links{flex-wrap:wrap;justify-content:center}
+  .nav-login{padding:8px 14px;font-size:12px;letter-spacing:1px}
   .testimonials-track{animation-duration:18s}
 }
 </style>
@@ -830,6 +841,7 @@ footer{
     <a href="#ai-coach">AI Coach</a>
     <a href="#pricing">Pricing</a>
   </div>
+  <a href="https://app.train2reignapp.com/sign-in" class="nav-login">Log In</a>
   <a href="#get-started" class="nav-cta">Get Early Access</a>
 </nav>
 
@@ -860,17 +872,12 @@ footer{
       <strong>For anyone serious about change.</strong>
     </p>
 
-    <!-- Netlify Forms hidden backup -->
-    <form name="t2r-launch-waitlist" netlify netlify-honeypot="bot-field" hidden>
-      <input type="email" name="email">
+    <form class="hero-capture" id="hero-form" action="/success.html" method="POST" data-netlify="true" name="t2r-launch-waitlist" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="t2r-launch-waitlist">
+      <input type="hidden" name="bot-field" style="display:none">
+      <input type="email" placeholder="Enter your email — get free Pro access at launch" id="hero-email" name="email" autocomplete="email" required>
+      <button type="submit">Notify Me →</button>
     </form>
-    <div class="hero-capture" id="hero-form">
-      <input type="email" placeholder="Enter your email — get free Pro access at launch" id="hero-email" name="email" autocomplete="email">
-      <button onclick="handleSubmit('hero')">Notify Me →</button>
-    </div>
-    <div class="success-msg" id="hero-success">
-      🔥 You're in. We'll notify you the moment Train2Reign goes live.
-    </div>
     <p class="hero-disclaimer">No spam. No fluff. Just your transformation notice.</p>
 
     <div class="store-badges">
@@ -1271,13 +1278,12 @@ footer{
       Be first. Get free Pro access when we launch.
       <strong>No credit card. No commitment. Just results.</strong>
     </p>
-    <div class="final-cta-capture reveal" id="final-form">
-      <input type="email" placeholder="Your email address" id="final-email" name="email" autocomplete="email">
-      <button onclick="handleSubmit('final')">Get Early Access →</button>
-    </div>
-    <div class="success-msg" id="final-success">
-      👑 You're on the founding member list. We'll see you at launch.
-    </div>
+    <form class="final-cta-capture reveal" id="final-form" action="/success.html" method="POST" data-netlify="true" name="t2r-launch-waitlist" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="t2r-launch-waitlist">
+      <input type="hidden" name="bot-field" style="display:none">
+      <input type="email" placeholder="Your email address" id="final-email" name="email" autocomplete="email" required>
+      <button type="submit">Get Early Access →</button>
+    </form>
     <p class="final-tagline reveal">TRAIN 2 WIN. DESTINED 2 REIGN.</p>
   </div>
 </section>
@@ -1326,80 +1332,11 @@ revealEls.forEach(el => observer.observe(el));
 // Replace these two values with your own from Mailchimp
 // Step-by-step: mailchimp.com → Audience → Signup forms → Embedded forms
 // Your list ID is found under Audience → Settings → Audience name and defaults
-const MC_USER_ID  = 'REPLACE_WITH_YOUR_MAILCHIMP_USER_ID';   // e.g. 'a1b2c3d4e5'
-const MC_LIST_ID  = 'REPLACE_WITH_YOUR_MAILCHIMP_LIST_ID';   // e.g. 'f6g7h8i9j0'
+const MC_USER_ID  = '5fa4915863a052d9a03ca216a';   // e.g. 'a1b2c3d4e5'
+const MC_LIST_ID  = '9cbb26cd52';   // e.g. 'f6g7h8i9j0'
 // Your datacenter is the prefix in your Mailchimp URL e.g. us21.admin.mailchimp.com → 'us21'
-const MC_DC       = 'REPLACE_WITH_YOUR_DATACENTER';          // e.g. 'us21'
+const MC_DC       = 'us9';          // e.g. 'us21'
 
-async function handleSubmit(form) {
-  const input   = document.getElementById(form + '-email');
-  const success = document.getElementById(form + '-success');
-  const formEl  = document.getElementById(form + '-form');
-  const btn     = formEl ? formEl.querySelector('button') : null;
-  const email   = input.value.trim();
-
-  // Validate email
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!re.test(email)) {
-    input.style.outline = '2px solid #EF4444';
-    input.style.outlineOffset = '-2px';
-    setTimeout(() => { input.style.outline = ''; }, 1200);
-    input.focus();
-    return;
-  }
-
-  // Loading state
-  if (btn) { btn.textContent = 'Joining…'; btn.disabled = true; }
-
-  try {
-    // Mailchimp subscribe via JSONP (no CORS issues, works client-side)
-    const url = `https://${MC_DC}.list-manage.com/subscribe/post-json`
-      + `?u=${MC_USER_ID}`
-      + `&id=${MC_LIST_ID}`
-      + `&EMAIL=${encodeURIComponent(email)}`
-      + `&MERGE1=Train2Reign+Launch`   // tag for this source
-      + `&c=mailchimpCallback`;
-
-    // Inject JSONP script tag
-    await new Promise((resolve, reject) => {
-      window.mailchimpCallback = (data) => {
-        delete window.mailchimpCallback;
-        if (data.result === 'success' || data.msg.includes('already subscribed')) {
-          resolve(data);
-        } else {
-          // Still resolve — common errors like "already subscribed" should show success
-          resolve(data);
-        }
-      };
-      const script = document.createElement('script');
-      script.src = url;
-      script.onerror = reject;
-      document.head.appendChild(script);
-      setTimeout(resolve, 5000); // fallback timeout
-    });
-
-    // Show success
-    if (formEl) formEl.style.display = 'none';
-    success.classList.add('show');
-
-    // Track in console for debugging
-    console.log('✅ Mailchimp subscribe:', email);
-
-  } catch (err) {
-    // Fallback — show success anyway (form will collect via Netlify Forms backup)
-    if (formEl) formEl.style.display = 'none';
-    success.classList.add('show');
-    console.warn('Mailchimp error (showing success anyway):', err);
-  }
-}
-
-// Enter key support
-['hero-email','final-email'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleSubmit(id.replace('-email',''));
-  });
-});
 
 // ── Smooth anchor scroll ───────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
